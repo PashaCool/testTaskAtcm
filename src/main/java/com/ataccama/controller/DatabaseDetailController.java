@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/api", produces = {"application/json", "text/xml"})
+@RequestMapping(path = "/api/connection", produces = {"application/json", "text/xml"})
 public class DatabaseDetailController {
 
     private final DatabaseDetailService dbDetailService;
@@ -27,7 +27,7 @@ public class DatabaseDetailController {
         this.dbDetailService = dbDetailService;
     }
 
-    @GetMapping("/allConnections")
+    @GetMapping("/all")
     public List<DatabaseDetailDto> findAllDbConnections() {
         return dbDetailService.findAllDatabases();
     }
@@ -38,19 +38,19 @@ public class DatabaseDetailController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newDbConnection);
     }
 
-    @DeleteMapping("/connection/{uuid}")
+    @DeleteMapping("/{uuid}")
     public ResponseEntity<?> deleteConnection(@PathVariable String uuid) {
         dbDetailService.deleteDbConnection(uuid);
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(value = "/updateConnection", method = {RequestMethod.PATCH, RequestMethod.PUT}, consumes = "application/json")
+    @RequestMapping(value = "/update", method = {RequestMethod.PATCH, RequestMethod.PUT}, consumes = "application/json")
     public ResponseEntity<DatabaseDetailDto> update(@RequestBody DatabaseDetailDto databaseDetailDto) {
         DatabaseDetailDto databaseDetail = dbDetailService.updateDbConnection(databaseDetailDto);
         return ResponseEntity.ok(databaseDetail);
     }
 
-    @GetMapping("/connection/{uuid}")
+    @GetMapping("/{uuid}")
     public ResponseEntity<DatabaseDetailDto> findDBConnectionById(@PathVariable String uuid) {
         return dbDetailService.findById(uuid)
                               .map(ResponseEntity::ok)

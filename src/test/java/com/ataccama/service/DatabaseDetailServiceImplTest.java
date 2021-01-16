@@ -3,7 +3,9 @@ package com.ataccama.service;
 import com.ataccama.model.DatabaseDetail;
 import com.ataccama.model.DatabaseDetailDto;
 import com.ataccama.repository.DatabaseDetailRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -29,6 +31,8 @@ class DatabaseDetailServiceImplTest {
     private TestRestTemplate restTemplate;
     @Autowired
     private DatabaseDetailRepository detailRepository;
+    @Autowired
+    private DatabaseDetailMapper mapper;
 
     private List<DatabaseDetail> detailDtoList;
 
@@ -55,18 +59,25 @@ class DatabaseDetailServiceImplTest {
         detailRepository.saveAll(detailDtoList);
     }
 
+    @AfterEach
+    public void cleanDB() {
+        detailRepository.deleteAll();
+    }
+
     @Test
+    @DisplayName("test endpoint GET /api/connection/{uuid}")
     void testFindById() {
         DatabaseDetail databaseDetail = detailDtoList.get(0);
         String uuid = databaseDetail.getUuid();
         DatabaseDetailDto dtoById = this.restTemplate.getForObject(HTTP_LOCALHOST + port + "/api/connection/" + uuid, DatabaseDetailDto.class);
         assertThat(dtoById).isNotNull();
-        compareDtoAndEntity(databaseDetail, dtoById);
+        compareEntityAndDto(databaseDetail, dtoById);
     }
 
     @Test
+    @DisplayName("test endpoint GET /api/connection/all")
     void testSearchAllConnections() {
-        List<LinkedHashMap<String, Object>> response = this.restTemplate.getForObject(HTTP_LOCALHOST + port + "/api/allConnections", List.class);
+        List<LinkedHashMap<String, Object>> response = this.restTemplate.getForObject(HTTP_LOCALHOST + port + "/api/connection/all", List.class);
         assertThat(response).isNotNull();
 
         checkDataResponse(response, 0);
@@ -74,6 +85,7 @@ class DatabaseDetailServiceImplTest {
     }
 
     @Test
+    @DisplayName("test endpoint POST /api/create")
     void testCreateConnection() throws Exception {
         String thirdDatabaseName = "thirdDatabaseName";
         DatabaseDetailDto newConnection = DatabaseDetailDto.builder()
@@ -85,18 +97,43 @@ class DatabaseDetailServiceImplTest {
                                                            .password("thirdPassword")
                                                            .build();
 
-        DatabaseDetailDto response = this.restTemplate.postForObject(HTTP_LOCALHOST + port + "/api/create", newConnection, DatabaseDetailDto.class);
+        DatabaseDetailDto response = this.restTemplate.postForObject(HTTP_LOCALHOST + port + "/api/connection/create", newConnection, DatabaseDetailDto.class);
 
         assertThat(response).isNotNull();
 
         DatabaseDetail foundDto = detailRepository.findByDatabaseName(thirdDatabaseName)
                                                   .orElseThrow(() -> new Exception("Created entity not found"));
-        compareDtoAndEntity(foundDto, newConnection);
+        compareEntityAndDto(foundDto, newConnection);
+    }
+
+    @Test
+    @DisplayName("test endpoint PUT /api/connection/update")
+    void testUpdateConnection() throws Exception {
+        String firstDBName = "firstDBName";
+        DatabaseDetail firstEntityVersion = detailRepository.findByDatabaseName(firstDBName)
+                                                  .orElseThrow(() -> new Exception("Created entity not found"));
+
+        DatabaseDetailDto postedVersion = DatabaseDetailDto.builder()
+                                                   .uuid(firstEntityVersion.getUuid())
+                                                   .name("updatedName")
+                                                   .hostName("updatedHostName")
+                                                   .port(port)
+                                                   .databaseName("updatedDatabaseName")
+                                                   .userName("updatedUserName")
+                                                   .password("updatedUserPassword")
+                                                   .build();
+
+        this.restTemplate.put(HTTP_LOCALHOST + port + "/api/connection/update", postedVersion);
+
+        DatabaseDetail updatedEntity = detailRepository.findById(firstEntityVersion.getUuid())
+                                                        .orElseThrow(() -> new Exception("updated entity not found"));
+
+        compareEntityAndDto(updatedEntity, postedVersion);
     }
 
     private void checkDataResponse(List<LinkedHashMap<String, Object>> response, int index) {
         LinkedHashMap<String, Object> rawDataResponse = response.get(index);
-        compareDtoAndEntity(detailDtoList.get(index), convertResponseToDto(rawDataResponse));
+        compareEntityAndDto(detailDtoList.get(index), convertResponseToDto(rawDataResponse));
     }
 
     private DatabaseDetailDto convertResponseToDto(LinkedHashMap<String, Object> stringStringLinkedHashMap) {
@@ -110,7 +147,7 @@ class DatabaseDetailServiceImplTest {
                                 .build();
     }
 
-    private void compareDtoAndEntity(DatabaseDetail entity, DatabaseDetailDto dto) {
+    private void compareEntityAndDto(DatabaseDetail entity, DatabaseDetailDto dto) {
         assertThat(dto.getName()).isEqualTo(entity.getName());
         assertThat(dto.getHostName()).isEqualTo(entity.getHostName());
         assertThat(dto.getPort()).isEqualTo(entity.getPort());
