@@ -43,7 +43,7 @@ public class ConnectionServiceImpl implements ConnectionService {
 
     private void createConnection(Connection connection, DatabaseDetailDto connectionDto) {
         if (connection != null) {
-            DatabaseDetailDto build = DatabaseDetailDto.builder()
+            DatabaseDetailDto databaseDetailDto = DatabaseDetailDto.builder()
                                                        .name(connectionDto.getName())
                                                        .hostName(connectionDto.getHostName())
                                                        .port(connectionDto.getPort())
@@ -51,7 +51,7 @@ public class ConnectionServiceImpl implements ConnectionService {
                                                        .userName(connectionDto.getUserName())
                                                        .password(connectionDto.getPassword())
                                                        .build();
-            databaseDetailService.createNewDbConnection(build);
+            databaseDetailService.createNewDbConnection(databaseDetailDto);
         }
     }
 
@@ -61,7 +61,7 @@ public class ConnectionServiceImpl implements ConnectionService {
         if (connection != null) {
             return connection;
         }
-        Properties props = new Properties();
+        var props = new Properties();
         props.put(USER, userName);
         props.put(PASSWORD, password);
         props.setProperty(LOGIN_TIMEOUT, TIMEOUT_DURATION);
@@ -81,7 +81,7 @@ public class ConnectionServiceImpl implements ConnectionService {
                 try {
                     conn.close();
                 } catch (SQLException throwables) {
-                    throwables.printStackTrace();
+                    throw new RuntimeException("Error occurred when connection had closed");
                 }
             }
         });

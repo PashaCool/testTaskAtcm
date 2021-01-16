@@ -1,17 +1,22 @@
 package com.ataccama.service;
 
-import com.ataccama.model.DataBaseMetaDataDto;
+import com.ataccama.model.ColumnDefinition;
 import com.ataccama.model.DatabaseDetailDto;
+import com.ataccama.model.TableDefinition;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class DatabaseMetadataServiceImpl implements DatabaseMetadataService {
 
+    private static final String DATABASECHANGELOG = "databasechangelog";
+    private static final String DATABASECHANGELOGLOCK = "databasechangeloglock";
     private static final String TABLE_NAME = "TABLE_NAME";
     private static final String COLUMN_NAME = "COLUMN_NAME";
     private static final String COLUMN_SIZE = "COLUMN_SIZE";
@@ -28,36 +33,47 @@ public class DatabaseMetadataServiceImpl implements DatabaseMetadataService {
     }
 
     @Override
-    public DataBaseMetaDataDto getDatabaseDetails(DatabaseDetailDto connectionDto) {
+    public List<TableDefinition> getDatabaseDetails(DatabaseDetailDto connectionDto) {
         Connection connection = connectionService.establishConnection(connectionDto);
         try {
             var metaData = connection.getMetaData();
-            var resultSet = metaData.getTables(null, null, null, TYPES);
-//            convertColumns(metaData);
-            var dataBaseMetaDataDto = convertTable(resultSet);
-            return dataBaseMetaDataDto;
+            return handleMetaData(metaData);
         } catch (SQLException throwables) {
             throw new RuntimeException(throwables.getMessage());
         }
     }
 
-    private DataBaseMetaDataDto convertTable(ResultSet resultSet) throws SQLException {
-        DataBaseMetaDataDto dataBaseMetaDataDto = new DataBaseMetaDataDto();
-        while (resultSet.next()) {
-            dataBaseMetaDataDto.addTableName(resultSet.getString(TABLE_NAME));
+    private List<TableDefinition> handleMetaData(DatabaseMetaData metaData) throws SQLException {
+        var resultSet = metaData.getTables(null, null, null, TYPES);
+        return convertTable(metaData, resultSet);
+    }
+
+    private List<TableDefinition> convertTable(DatabaseMetaData metaData, ResultSet tablesResultSet) throws SQLException {
+        List<TableDefinition> dataBaseMetaDataDto = new ArrayList<>();
+        while (tablesResultSet.next()) {
+            String tableName = tablesResultSet.getString(TABLE_NAME);
+            if (isNotServiceTable(tableName)) {
+                List<ColumnDefinition> columnDefinitions = convertColumns(metaData, tableName);
+                dataBaseMetaDataDto.add(new TableDefinition(tableName, columnDefinitions));
+            }
         }
         return dataBaseMetaDataDto;
     }
 
-    private void convertColumns(DatabaseMetaData metaData) throws SQLException {//todo handle later
-        ResultSet columns = metaData.getColumns(null, null, "answers", null);
+    private List<ColumnDefinition> convertColumns(DatabaseMetaData metaData, String tableName) throws SQLException {
+        var columns = metaData.getColumns(null, null, tableName, null);
+        var columnDefinitions = new ArrayList<ColumnDefinition>();
         while (columns.next()) {
-            String columnName = columns.getString(COLUMN_NAME);
-            String columnSize = columns.getString(COLUMN_SIZE);
-            String datatype = columns.getString(DATA_TYPE);
-            String isNullable = columns.getString(IS_NULLABLE);
-            String isAutoIncrement = columns.getString(IS_AUTOINCREMENT);
+            ColumnDefinition columnDefinition = new ColumnDefinition(columns.getString(COLUMN_NAME), columns.getString(DATA_TYPE),
+                                                                     columns.getBoolean(IS_NULLABLE), columns.getBoolean(IS_AUTOINCREMENT));
+            columnDefinition.setColumnSize(columns.getString(COLUMN_SIZE));
+            columnDefinitions.add(columnDefinition);
         }
+        return columnDefinitions;
+    }
+
+    private boolean isNotServiceTable(String tableName) {
+        return !DATABASECHANGELOG.equalsIgnoreCase(tableName) && !DATABASECHANGELOGLOCK.equalsIgnoreCase(tableName);
     }
 
 }

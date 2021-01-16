@@ -1,15 +1,17 @@
 package com.ataccama.controller;
 
-import com.ataccama.model.DataBaseMetaDataDto;
 import com.ataccama.model.DatabaseDetailDto;
+import com.ataccama.model.TableDefinition;
 import com.ataccama.service.DatabaseMetadataService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
-@RequestMapping(path = "/api/external", consumes = {"application/json", "text/xml"}, produces = {"application/json", "text/xml"})
+@RequestMapping("/api/external")
 public class ExternalConnectionController {
 
     private final DatabaseMetadataService metadataService;
@@ -18,8 +20,8 @@ public class ExternalConnectionController {
         this.metadataService = metadataService;
     }
 
-    @PostMapping("/databaseMetaData")
-    public DataBaseMetaDataDto databaseMetaData(@RequestBody DatabaseDetailDto connectionDto) {
+    @PostMapping(value = "/databaseMetaData", consumes = {"application/json", "text/xml"}, produces = {"application/json", "text/xml"})
+    public List<TableDefinition> databaseMetaData(@RequestBody DatabaseDetailDto connectionDto) {
         return metadataService.getDatabaseDetails(connectionDto);
     }
 
