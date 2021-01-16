@@ -2,12 +2,15 @@ package com.ataccama.service;
 
 import com.ataccama.exception.ConnectionEstablishExceprion;
 import com.ataccama.model.DatabaseDetailDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PreDestroy;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Properties;
 
 @Service
@@ -20,6 +23,7 @@ public class ConnectionServiceImpl implements ConnectionService {
     private final DatabaseDetailService databaseDetailService;
     @Value("${connection.timeout}")
     private String TIMEOUT_DURATION;
+    private final HashMap<ConnectionDetail, Connection> connectionPool = new HashMap<>();
 
     public ConnectionServiceImpl(DatabaseDetailService databaseDetailService) {
         this.databaseDetailService = databaseDetailService;
@@ -52,15 +56,42 @@ public class ConnectionServiceImpl implements ConnectionService {
     }
 
     private Connection establishConnection(String databaseUrl, String userName, String password) throws SQLException {
+        var connectionDetail = new ConnectionDetail(databaseUrl, userName, password);
+        var connection = connectionPool.get(connectionDetail);
+        if (connection != null) {
+            return connection;
+        }
         Properties props = new Properties();
         props.put(USER, userName);
         props.put(PASSWORD, password);
         props.setProperty(LOGIN_TIMEOUT, TIMEOUT_DURATION);
-        return DriverManager.getConnection(databaseUrl, props);
+        connection = DriverManager.getConnection(databaseUrl, props);
+        connectionPool.put(connectionDetail, connection);
+        return connection;
     }
 
     private String accumulateUrl(DatabaseDetailDto connectionDto) {
         return String.format(URL_TEMPLATE, connectionDto.getHostName(), connectionDto.getPort(), connectionDto.getDatabaseName());
+    }
+
+    @PreDestroy
+    public void closeConnections() {
+        connectionPool.values().forEach(conn -> {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+        });
+    }
+
+    @RequiredArgsConstructor
+    private static class ConnectionDetail {
+        private final String databaseUrl;
+        private final String userName;
+        private final String password;
     }
 
 }
