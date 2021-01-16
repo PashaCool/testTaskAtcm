@@ -11,6 +11,7 @@ import java.util.Optional;
 @Service
 public class DatabaseDetailServiceImpl implements DatabaseDetailService {
 
+    private static final String EMPTY_STRING = "";
     private final DatabaseDetailRepository dbDetailRepository;
     private final DatabaseDetailMapper databaseDetailMapper;
 
@@ -26,10 +27,14 @@ public class DatabaseDetailServiceImpl implements DatabaseDetailService {
     }
 
     @Override
-    public DatabaseDetailDto createNewDbConnection(DatabaseDetailDto dto) {
-        DatabaseDetail entity = databaseDetailMapper.map(dto);
-        DatabaseDetail save = dbDetailRepository.save(entity);
-        return databaseDetailMapper.map(save);
+    public String createNewDbConnection(DatabaseDetailDto dto) {
+        Optional<DatabaseDetail> byDatabaseName = dbDetailRepository.findByDatabaseName(dto.getName());
+        if (byDatabaseName.isEmpty()) {
+            DatabaseDetail entity = databaseDetailMapper.map(dto);
+            DatabaseDetail saved = dbDetailRepository.save(entity);
+            return saved.getUuid();
+        }
+        return EMPTY_STRING;
     }
 
     @Override
@@ -39,7 +44,9 @@ public class DatabaseDetailServiceImpl implements DatabaseDetailService {
 
     @Override
     public DatabaseDetailDto updateDbConnection(DatabaseDetailDto dto) {
-        return this.createNewDbConnection(dto);
+        DatabaseDetail request = databaseDetailMapper.map(dto);
+        DatabaseDetail updatedEntity = this.dbDetailRepository.save(request);
+        return databaseDetailMapper.map(updatedEntity);
     }
 
     @Override

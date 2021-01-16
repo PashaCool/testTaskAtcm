@@ -33,9 +33,12 @@ public class DatabaseDetailController {
     }
 
     @PostMapping(path = "/create", consumes = "application/json")
-    public ResponseEntity<DatabaseDetailDto> createConnection(@RequestBody DatabaseDetailDto databaseDetailDto) {
-        DatabaseDetailDto newDbConnection = dbDetailService.createNewDbConnection(databaseDetailDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newDbConnection);
+    public ResponseEntity<String> createConnection(@RequestBody DatabaseDetailDto databaseDetailDto) {
+        String uuid = dbDetailService.createNewDbConnection(databaseDetailDto);
+        if (!uuid.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(uuid);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @DeleteMapping("/{uuid}")

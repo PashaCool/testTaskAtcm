@@ -21,7 +21,7 @@ public class DatabaseDetail {
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     private String uuid;
 
-    @Column(length = 64, name = "innerName")
+    @Column(length = 64, name = "innerName", nullable = false)
     private String name;
 
     @Column(name = "host_name", length = 255, nullable = false)

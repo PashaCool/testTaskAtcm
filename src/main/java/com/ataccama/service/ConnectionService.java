@@ -1,10 +1,10 @@
 package com.ataccama.service;
 
-import com.ataccama.model.ConnectionDto;
+import com.ataccama.model.DatabaseDetailDto;
 
 import java.sql.Connection;
 
 public interface ConnectionService {
 
-    Connection establishConnection(ConnectionDto connectionDto);
+    Connection establishConnection(DatabaseDetailDto connectionDto);
 }
