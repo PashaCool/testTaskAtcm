@@ -69,11 +69,32 @@ class DatabaseDetailServiceImplTest {
         List<LinkedHashMap<String, Object>> response = this.restTemplate.getForObject(HTTP_LOCALHOST + port + "/api/allConnections", List.class);
         assertThat(response).isNotNull();
 
-        checkDataPesponse(response, 0);
-        checkDataPesponse(response, 1);
+        checkDataResponse(response, 0);
+        checkDataResponse(response, 1);
     }
 
-    private void checkDataPesponse(List<LinkedHashMap<String, Object>> response, int index) {
+    @Test
+    void testCreateConnection() throws Exception {
+        String thirdDatabaseName = "thirdDatabaseName";
+        DatabaseDetailDto newConnection = DatabaseDetailDto.builder()
+                                                           .name("3")
+                                                           .hostName("thirdHostName")
+                                                           .port(3333)
+                                                           .databaseName(thirdDatabaseName)
+                                                           .userName("thirdUserName")
+                                                           .password("thirdPassword")
+                                                           .build();
+
+        DatabaseDetailDto response = this.restTemplate.postForObject(HTTP_LOCALHOST + port + "/api/create", newConnection, DatabaseDetailDto.class);
+
+        assertThat(response).isNotNull();
+
+        DatabaseDetail foundDto = detailRepository.findByDatabaseName(thirdDatabaseName)
+                                                  .orElseThrow(() -> new Exception("Created entity not found"));
+        compareDtoAndEntity(foundDto, newConnection);
+    }
+
+    private void checkDataResponse(List<LinkedHashMap<String, Object>> response, int index) {
         LinkedHashMap<String, Object> rawDataResponse = response.get(index);
         compareDtoAndEntity(detailDtoList.get(index), convertResponseToDto(rawDataResponse));
     }
