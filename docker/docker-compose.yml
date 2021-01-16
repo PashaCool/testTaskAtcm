@@ -1,18 +1,29 @@
- version: '3.7'
+version: '3.7'
 
- services:
-      db_ataccama_postgres:
-        build:
-          context: db
-          dockerfile: Dockerfile
-        volumes:
-          - db-data:/var/lib/postgresql/data
-        container_name: db_ataccama_postgres
-        env_file:
-          - ./app-variables.env
-        ports:
-          - "5434:5432"
-        restart: "unless-stopped"
+services:
+  db_ataccama_postgres:
+    build:
+      context: ./inner-db
+    #          dockerfile: Dockerfile
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    container_name: db_ataccama_postgres
+    env_file:
+      - ./app-variables.env
+    ports:
+      - "5432:5432"
+    restart: "unless-stopped"
 
- volumes:
+  external_product_db:
+    build:
+      context: ./external-db
+#      dockerfile: Dockerfile
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    container_name: external_product_db
+    ports:
+      - "5434:5432"
+    restart: "unless-stopped"
+
+volumes:
   db-data:

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://host.docker.internal:5434/testAtaccamaDb
+    url: jdbc:postgresql://host.docker.internal:5432/testAtaccamaDb
     driverClassName: org.postgresql.Driver
     username: postgres
     password: postgres
@@ -13,5 +13,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQL9Dialect
   liquibase:
     change-log: classpath:db/liquibase/master.xml
+
 server:
   port: 8081
+
+connection:
+  timeout: 15
