@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Service
-public class Connector {
+public class DemoConnector {
 
     private static final String TABLE_NAME = "TABLE_NAME";
     private static final String COLUMN_NAME = "COLUMN_NAME";
@@ -20,7 +20,7 @@ public class Connector {
     private static final String[] TYPES = {"TABLE"};
     private final DataSource dataSource;
 
-    public Connector(DataSource dataSource) {
+    public DemoConnector(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
