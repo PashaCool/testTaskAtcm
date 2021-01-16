@@ -1,6 +1,7 @@
 package com.ataccama.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -12,6 +13,7 @@ import javax.persistence.Id;
 @Entity(name = "databasedetails")
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = "uuid")
 public class DatabaseDetail {
 
     @Id
