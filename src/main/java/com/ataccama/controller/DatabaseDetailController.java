@@ -1,6 +1,6 @@
 package com.ataccama.controller;
 
-import com.ataccama.model.DatabaseDetail;
+import com.ataccama.model.DatabaseDetailDto;
 import com.ataccama.service.DatabaseDetailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(path = "/api", produces = {"application/json", "text/xml"})
 public class DatabaseDetailController {
@@ -26,13 +28,13 @@ public class DatabaseDetailController {
     }
 
     @GetMapping("/allConnections")
-    public Iterable<DatabaseDetail> findAllDbConnections() {
+    public List<DatabaseDetailDto> findAllDbConnections() {
         return dbDetailService.findAllDatabases();
     }
 
     @PostMapping(path = "/create", consumes = "application/json")
-    public ResponseEntity<DatabaseDetail> createConnection(@RequestBody DatabaseDetail entity) {
-        DatabaseDetail newDbConnection = dbDetailService.createNewDbConnection(entity);
+    public ResponseEntity<DatabaseDetailDto> createConnection(@RequestBody DatabaseDetailDto databaseDetailDto) {
+        DatabaseDetailDto newDbConnection = dbDetailService.createNewDbConnection(databaseDetailDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(newDbConnection);
     }
 
@@ -43,13 +45,13 @@ public class DatabaseDetailController {
     }
 
     @RequestMapping(value = "/updateConnection", method = {RequestMethod.PATCH, RequestMethod.PUT}, consumes = "application/json")
-    public ResponseEntity<DatabaseDetail> update(@RequestBody DatabaseDetail entity) {
-        DatabaseDetail databaseDetail = dbDetailService.updateDbConnection(entity);
+    public ResponseEntity<DatabaseDetailDto> update(@RequestBody DatabaseDetailDto databaseDetailDto) {
+        DatabaseDetailDto databaseDetail = dbDetailService.updateDbConnection(databaseDetailDto);
         return ResponseEntity.ok(databaseDetail);
     }
 
     @GetMapping("/connection/{uuid}")
-    public ResponseEntity<DatabaseDetail> findDBConnectionById(@PathVariable String uuid) {
+    public ResponseEntity<DatabaseDetailDto> findDBConnectionById(@PathVariable String uuid) {
         return dbDetailService.findById(uuid)
                               .map(ResponseEntity::ok)
                               .orElse(ResponseEntity.noContent().build());

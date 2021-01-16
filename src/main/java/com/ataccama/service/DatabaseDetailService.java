@@ -1,19 +1,20 @@
 package com.ataccama.service;
 
-import com.ataccama.model.DatabaseDetail;
+import com.ataccama.model.DatabaseDetailDto;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface DatabaseDetailService {
 
-    Iterable<DatabaseDetail> findAllDatabases();
+    List<DatabaseDetailDto> findAllDatabases();
 
-    DatabaseDetail createNewDbConnection(DatabaseDetail entity);
+    DatabaseDetailDto createNewDbConnection(DatabaseDetailDto entity);
 
     void deleteDbConnection(String uuid);
 
-    DatabaseDetail updateDbConnection(DatabaseDetail entity);
+    DatabaseDetailDto updateDbConnection(DatabaseDetailDto entity);
 
-    Optional<DatabaseDetail> findById(String uuid);
+    Optional<DatabaseDetailDto> findById(String uuid);
 
 }
