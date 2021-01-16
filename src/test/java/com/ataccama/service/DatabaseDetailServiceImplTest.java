@@ -17,6 +17,8 @@ import org.springframework.boot.web.server.LocalServerPort;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -111,24 +113,45 @@ class DatabaseDetailServiceImplTest {
     void testUpdateConnection() throws Exception {
         String firstDBName = "firstDBName";
         DatabaseDetail firstEntityVersion = detailRepository.findByDatabaseName(firstDBName)
-                                                  .orElseThrow(() -> new Exception("Created entity not found"));
+                                                            .orElseThrow(() -> new Exception("Created entity not found"));
 
         DatabaseDetailDto postedVersion = DatabaseDetailDto.builder()
-                                                   .uuid(firstEntityVersion.getUuid())
-                                                   .name("updatedName")
-                                                   .hostName("updatedHostName")
-                                                   .port(port)
-                                                   .databaseName("updatedDatabaseName")
-                                                   .userName("updatedUserName")
-                                                   .password("updatedUserPassword")
-                                                   .build();
+                                                           .uuid(firstEntityVersion.getUuid())
+                                                           .name("updatedName")
+                                                           .hostName("updatedHostName")
+                                                           .port(port)
+                                                           .databaseName("updatedDatabaseName")
+                                                           .userName("updatedUserName")
+                                                           .password("updatedUserPassword")
+                                                           .build();
 
         this.restTemplate.put(HTTP_LOCALHOST + port + "/api/connection/update", postedVersion);
 
         DatabaseDetail updatedEntity = detailRepository.findById(firstEntityVersion.getUuid())
-                                                        .orElseThrow(() -> new Exception("updated entity not found"));
+                                                       .orElseThrow(() -> new Exception("updated entity not found"));
 
         compareEntityAndDto(updatedEntity, postedVersion);
+    }
+
+    @Test
+    @DisplayName("test endpoint DELETE /api/connection/{uuid}")
+    void testDeleteConnection() {
+        Iterable<DatabaseDetail> start = detailRepository.findAll();
+        long beforeDelete = iterableSize(start);
+
+        DatabaseDetail secondDBName = detailRepository.findByDatabaseName("secondDBName")
+                                                      .orElseThrow();
+
+        this.restTemplate.delete(HTTP_LOCALHOST + port + "/api/connection/" + secondDBName.getUuid(), Map.of("uuid", secondDBName.getUuid()));
+
+        Iterable<DatabaseDetail> finish = detailRepository.findAll();
+        long afterDelete = iterableSize(finish);
+
+        assertThat(beforeDelete).isEqualTo(afterDelete + 1);
+    }
+
+    private long iterableSize(Iterable<?> collection) {
+        return StreamSupport.stream(collection.spliterator(), false).count();
     }
 
     private void checkDataResponse(List<LinkedHashMap<String, Object>> response, int index) {
