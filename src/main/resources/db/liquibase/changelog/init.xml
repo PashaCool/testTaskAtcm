@@ -21,4 +21,22 @@
         </sql>
     </changeSet>
 
+    <changeSet author="pshcharbakov" id="20210116-02">
+        <comment>insert stud data for smoke and manual test</comment>
+        <sql>
+            INSERT INTO public.databasedetails(id, inner_name, host_name, db_port, database_name, user_name, user_password)
+            VALUES
+            ('1', 'amazon', '192.1.1.1', 1212, 'amazon_products', 'customer', 'customer'),
+            ('2', 'products', '192.1.1.2', 3031, 'food', 'customer12', 'customer1992'),
+            ('3', 'market', '192.0.0.12', 8085, 'vegetables', 'Alex', '25-08-1996');
+        </sql>
+    </changeSet>
+
+    <changeSet author="pshcharbakov" id="20210116-03">
+        <comment>rename column databaseDetails.id to uuid</comment>
+        <sql>
+            ALTER TABLE public.databasedetails RENAME COLUMN id TO uuid;
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>

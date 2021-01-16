@@ -9,10 +9,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-@Entity
+@Entity(name = "databasedetails")
 @Data
 @NoArgsConstructor
-public class DatabaseDetails {
+public class DatabaseDetail {
 
     @Id
     @GeneratedValue(generator = "system-uuid")
