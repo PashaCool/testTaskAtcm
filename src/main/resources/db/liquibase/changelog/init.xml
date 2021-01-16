@@ -39,4 +39,18 @@
         </sql>
     </changeSet>
 
+    <changeSet author="pshcharbakov" id="20210116-04">
+        <comment>make databaseDetails.inner_name unique</comment>
+        <sql>
+            ALTER TABLE public.databasedetails ADD CONSTRAINT unique_db_name UNIQUE (inner_name);
+        </sql>
+    </changeSet>
+
+    <changeSet author="pshcharbakov" id="20210116-05">
+        <comment>make host_name and db_port and database_name unique</comment>
+        <sql>
+            ALTER TABLE public.databasedetails ADD CONSTRAINT unique_db_address UNIQUE (host_name, db_port, database_name);
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
