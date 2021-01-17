@@ -1,5 +1,6 @@
 package com.ataccama.service;
 
+import com.ataccama.exception.EstablishConnectionException;
 import com.ataccama.model.ColumnDefinition;
 import com.ataccama.model.DatabaseDetailDto;
 import com.ataccama.model.QueryRequest;
@@ -38,7 +39,8 @@ public class DatabaseMetadataServiceImpl implements DatabaseMetadataService {
             var metaData = connection.getMetaData();
             return handleMetaData(metaData);
         } catch (SQLException exception) {
-            throw new RuntimeException(exception.getMessage());
+            final String url = connectionService.accumulateUrl(connectionDto);
+            throw new EstablishConnectionException(url);
         }
     }
 

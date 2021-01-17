@@ -46,3 +46,6 @@ Definition rest-controllers
 3) ShutDownController
 
     - POST /shutdownContext - closes application context
+
+
+Liquibase scripts populate table public.databaseDetails for smoke and manual testing web-endpoints

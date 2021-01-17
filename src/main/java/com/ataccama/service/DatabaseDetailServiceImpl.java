@@ -1,5 +1,6 @@
 package com.ataccama.service;
 
+import com.ataccama.exception.NotUniqueInnerDbNameException;
 import com.ataccama.model.DatabaseDetail;
 import com.ataccama.model.DatabaseDetailDto;
 import com.ataccama.repository.DatabaseDetailRepository;
@@ -14,7 +15,6 @@ import java.util.Optional;
 @Service
 public class DatabaseDetailServiceImpl implements DatabaseDetailService {
 
-    private static final String EMPTY_STRING = "";
     private final DatabaseDetailRepository dbDetailRepository;
     private final DatabaseDetailMapper databaseDetailMapper;
 
@@ -34,7 +34,7 @@ public class DatabaseDetailServiceImpl implements DatabaseDetailService {
             DatabaseDetail saved = dbDetailRepository.save(entity);
             return saved.getUuid();
         }
-        return EMPTY_STRING;
+        throw new NotUniqueInnerDbNameException(dto.getName());
     }
 
     @Override

@@ -23,6 +23,11 @@ public class ConnectionServiceImpl implements ConnectionService {
         return dataSource;
     }
 
+    @Override
+    public String accumulateUrl(DatabaseDetailDto connectionDto) {
+        return String.format(URL_TEMPLATE, connectionDto.getHostName(), connectionDto.getPort(), connectionDto.getDatabaseName());
+    }
+
     private void createConnection(DataSource dataSource, DatabaseDetailDto connectionDto) {
         if (dataSource != null) {
             DatabaseDetailDto databaseDetailDto = DatabaseDetailDto.builder()
@@ -43,10 +48,6 @@ public class ConnectionServiceImpl implements ConnectionService {
         config.setPassword(password);
         config.setJdbcUrl(databaseUrl);
         return new HikariDataSource(config);
-    }
-
-    private String accumulateUrl(DatabaseDetailDto connectionDto) {
-        return String.format(URL_TEMPLATE, connectionDto.getHostName(), connectionDto.getPort(), connectionDto.getDatabaseName());
     }
 
 }

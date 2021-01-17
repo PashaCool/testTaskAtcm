@@ -23,11 +23,20 @@ public class DatabaseDetailController {
 
     private final DatabaseDetailService dbDetailService;
 
+    /**
+     * Show all saved connections
+     * @return list of saved connections: uuid, inner name, host, port, database name, user and password
+     */
     @GetMapping("/all")
     public List<DatabaseDetailDto> findAllDbConnections() {
         return dbDetailService.findAllDatabases();
     }
 
+    /**
+     * Save connection
+     * @param databaseDetailDto apply new connection details: inner name, host, port, database name, userName and password
+     * @return return uuid of created entity
+     */
     @PostMapping(path = "/create", consumes = "application/json")
     public ResponseEntity<String> createConnection(@RequestBody DatabaseDetailDto databaseDetailDto) {
         String uuid = dbDetailService.createDbConnection(databaseDetailDto);
@@ -37,18 +46,33 @@ public class DatabaseDetailController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
+    /**
+     * Delete record by uuid
+     * @param uuid uuid of record
+     * @return response status
+     */
     @DeleteMapping("/{uuid}")
     public ResponseEntity<?> deleteConnection(@PathVariable String uuid) {
         dbDetailService.deleteDbConnection(uuid);
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Update table by matching uuid
+     * @param databaseDetailDto New version of record. If uuid match - update record, otherwise - create new record
+     * @return - updated record
+     */
     @RequestMapping(value = "/update", method = {RequestMethod.PATCH, RequestMethod.PUT}, consumes = "application/json")
     public ResponseEntity<DatabaseDetailDto> update(@RequestBody DatabaseDetailDto databaseDetailDto) {
         DatabaseDetailDto databaseDetail = dbDetailService.updateDbConnection(databaseDetailDto);
         return ResponseEntity.ok(databaseDetail);
     }
 
+    /**
+     * Get connection details by uuid
+     * @param uuid uuid of required connection
+     * @return connection definition: inner name, host, port, database name, userName and password
+     */
     @GetMapping("/{uuid}")
     public ResponseEntity<DatabaseDetailDto> findDBConnectionById(@PathVariable String uuid) {
         return dbDetailService.findById(uuid)

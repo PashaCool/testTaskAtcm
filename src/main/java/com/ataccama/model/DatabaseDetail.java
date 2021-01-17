@@ -24,11 +24,15 @@ public class DatabaseDetail {
     @Column(length = 64, name = "innerName", nullable = false)
     private String name;
 
-    @Column(name = "host_name", length = 255, nullable = false)
+    @Column(name = "host_name", nullable = false)
     private String hostName;
 
+    /*
+    Here object type instead of basic, because in method com.ataccama.service.DatabaseDetailServiceImpl.createDbConnection, when repository invokes exists(Example)
+    formed query with condition: where databasede0_.db_port=0 and databasede0_.inner_name=? - in query default basic value
+     */
     @Column(name = "db_port", nullable = false)
-    private int port;
+    private Integer port;
 
     @Column(name = "database_name", length = 64, nullable = false)
     private String databaseName;
@@ -36,7 +40,7 @@ public class DatabaseDetail {
     @Column(name = "user_name", length = 64, nullable = false)
     private String userName;
 
-    @Column(name = "user_password", length = 255, nullable = false)
+    @Column(name = "user_password", nullable = false)
     private String password;
 
 }
