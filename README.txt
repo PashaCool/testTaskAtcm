@@ -50,3 +50,5 @@ Definition rest-controllers
 Liquibase scripts populate table public.databaseDetails for smoke and manual testing web-endpoints
 
 File docker/deploy.sh starts 2 postgres instances
+
+The application runs in Intellij Idea and connect to db in containers
