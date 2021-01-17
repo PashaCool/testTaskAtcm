@@ -4,6 +4,7 @@ import com.ataccama.model.DatabaseDetail;
 import com.ataccama.model.DatabaseDetailDto;
 import com.ataccama.repository.DatabaseDetailRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,8 +26,10 @@ public class DatabaseDetailServiceImpl implements DatabaseDetailService {
 
     @Override
     public String createDbConnection(DatabaseDetailDto dto) {
-        Optional<DatabaseDetail> byDatabaseName = dbDetailRepository.findByName(dto.getName());
-        if (byDatabaseName.isEmpty()) {
+        DatabaseDetail predicate = new DatabaseDetail();
+        predicate.setName(dto.getName());
+        final boolean exists = dbDetailRepository.exists(Example.of(predicate));
+        if (!exists) {
             DatabaseDetail entity = databaseDetailMapper.map(dto);
             DatabaseDetail saved = dbDetailRepository.save(entity);
             return saved.getUuid();
