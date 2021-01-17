@@ -28,7 +28,7 @@ public class ExternalConnectionController {
     }
 
     @PostMapping(path = "/query", consumes = {"application/json", "text/xml"}, produces = {"application/json", "text/xml"})
-    public  Map<String, Object> executeQuery(@RequestBody QueryRequest request) {
+    public  List<Map<String, Object>> executeQuery(@RequestBody QueryRequest request) {
         return metadataService.executeQuery(request);
     }
 

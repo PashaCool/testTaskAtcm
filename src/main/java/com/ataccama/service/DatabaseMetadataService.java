@@ -11,5 +11,5 @@ public interface DatabaseMetadataService {
 
     List<TableDefinition> getDatabaseDetails(DatabaseDetailDto connectionDto);
 
-    Map<String, Object> executeQuery(QueryRequest request);
+    List<Map<String, Object>> executeQuery(QueryRequest request);
 }
