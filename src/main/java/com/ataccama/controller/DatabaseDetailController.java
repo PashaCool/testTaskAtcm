@@ -2,6 +2,7 @@ package com.ataccama.controller;
 
 import com.ataccama.model.DatabaseDetailDto;
 import com.ataccama.service.DatabaseDetailService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,15 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/api/connection", produces = {"application/json", "text/xml"})
 public class DatabaseDetailController {
 
     private final DatabaseDetailService dbDetailService;
-
-    public DatabaseDetailController(DatabaseDetailService dbDetailService) {
-        this.dbDetailService = dbDetailService;
-    }
 
     @GetMapping("/all")
     public List<DatabaseDetailDto> findAllDbConnections() {

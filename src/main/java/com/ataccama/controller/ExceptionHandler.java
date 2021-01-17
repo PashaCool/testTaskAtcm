@@ -12,7 +12,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler
     protected ResponseEntity<Object> handleConflict(RuntimeException ex, WebRequest request) {
-        String bodyOfResponse = "This should be application specific";
+        String bodyOfResponse = "Error occurred";
         return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 }

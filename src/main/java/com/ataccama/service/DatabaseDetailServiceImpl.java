@@ -3,22 +3,19 @@ package com.ataccama.service;
 import com.ataccama.model.DatabaseDetail;
 import com.ataccama.model.DatabaseDetailDto;
 import com.ataccama.repository.DatabaseDetailRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class DatabaseDetailServiceImpl implements DatabaseDetailService {
 
     private static final String EMPTY_STRING = "";
     private final DatabaseDetailRepository dbDetailRepository;
     private final DatabaseDetailMapper databaseDetailMapper;
-
-    public DatabaseDetailServiceImpl(DatabaseDetailRepository dbDetailRepository, DatabaseDetailMapper databaseDetailMapper) {
-        this.dbDetailRepository = dbDetailRepository;
-        this.databaseDetailMapper = databaseDetailMapper;
-    }
 
     @Override
     public List<DatabaseDetailDto> findAllDatabases() {
