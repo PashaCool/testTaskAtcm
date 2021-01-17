@@ -1,5 +1,6 @@
 package com.ataccama.service;
 
+import com.ataccama.exception.ConnectionCloseException;
 import com.ataccama.exception.ConnectionEstablishExceprion;
 import com.ataccama.model.DatabaseDetailDto;
 import lombok.EqualsAndHashCode;
@@ -88,8 +89,8 @@ public class ConnectionServiceImpl implements ConnectionService {
             if (conn != null) {
                 try {
                     conn.close();
-                } catch (SQLException throwables) {
-                    throw new RuntimeException("Error occurred when connection had closed");
+                } catch (SQLException ex) {
+                    throw new ConnectionCloseException();
                 }
             }
         });
