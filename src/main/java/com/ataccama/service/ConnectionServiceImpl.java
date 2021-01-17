@@ -37,7 +37,7 @@ public class ConnectionServiceImpl implements ConnectionService {
         String databaseUrl = accumulateUrl(connectionDto);
         try {
             Connection connection = establishConnection(databaseUrl, connectionDto.getUserName(), connectionDto.getPassword());
-            createConnection(connection, connectionDto);
+//            createConnection(connection, connectionDto); //todo for test purpose
             return connection;
         } catch (SQLException throwables) {
             throw new ConnectionEstablishExceprion(databaseUrl, connectionDto.getUserName());
@@ -66,7 +66,7 @@ public class ConnectionServiceImpl implements ConnectionService {
         }
         var props = setProperties(userName, password);
         connection = DriverManager.getConnection(databaseUrl, props);
-        connectionDetail.takeConnection();
+        connectionDetail.acquireConnection();
         connectionPool.put(connectionDetail, connection);
         return connection;
     }
@@ -104,7 +104,7 @@ public class ConnectionServiceImpl implements ConnectionService {
         private final String password;
         private final AtomicBoolean isFree = new AtomicBoolean(false);
 
-        void takeConnection() {
+        void acquireConnection() {
             isFree.compareAndExchange(true, false);
         }
 

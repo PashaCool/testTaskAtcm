@@ -2,15 +2,18 @@ package com.ataccama.service;
 
 import com.ataccama.model.ColumnDefinition;
 import com.ataccama.model.DatabaseDetailDto;
+import com.ataccama.model.QueryRequest;
 import com.ataccama.model.TableDefinition;
 import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class DatabaseMetadataServiceImpl implements DatabaseMetadataService {
@@ -34,13 +37,45 @@ public class DatabaseMetadataServiceImpl implements DatabaseMetadataService {
 
     @Override
     public List<TableDefinition> getDatabaseDetails(DatabaseDetailDto connectionDto) {
-        Connection connection = connectionService.establishConnection(connectionDto);
+        var connection = connectionService.establishConnection(connectionDto);
         try {
             var metaData = connection.getMetaData();
             return handleMetaData(metaData);
         } catch (SQLException throwables) {
             throw new RuntimeException(throwables.getMessage());
         }
+    }
+
+    @Override
+    public Map<String, Object> executeQuery(QueryRequest request) {
+        var connection = connectionService.establishConnection(request.getConnectionDefinition());
+        Map<String, Object> result = new LinkedHashMap<>();
+        if (connection != null) {
+            String[] columns = request.getColumns().split(",");
+            String sql = "select " + request.getColumns() + " from " + request.getDataSource() + ";";
+            PreparedStatement preparedStatement = null;
+            try {
+                preparedStatement = connection.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                var i = 0;
+                int length = columns.length;
+                while (resultSet.next() && i < length) {
+                    String column = columns[i++].trim();//выбирает только первую строку
+                    result.put(column, resultSet.getObject(column));
+                }
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            } finally {
+                if (preparedStatement != null) {
+                    try {
+                        preparedStatement.close();
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     private List<TableDefinition> handleMetaData(DatabaseMetaData metaData) throws SQLException {
@@ -64,8 +99,8 @@ public class DatabaseMetadataServiceImpl implements DatabaseMetadataService {
         var columns = metaData.getColumns(null, null, tableName, null);
         var columnDefinitions = new ArrayList<ColumnDefinition>();
         while (columns.next()) {
-            ColumnDefinition columnDefinition = new ColumnDefinition(columns.getString(COLUMN_NAME), columns.getString(DATA_TYPE),
-                                                                     columns.getBoolean(IS_NULLABLE), columns.getBoolean(IS_AUTOINCREMENT));
+            var columnDefinition = new ColumnDefinition(columns.getString(COLUMN_NAME), columns.getString(DATA_TYPE), columns.getBoolean(IS_NULLABLE),
+                                                        columns.getBoolean(IS_AUTOINCREMENT));
             columnDefinition.setColumnSize(columns.getString(COLUMN_SIZE));
             columnDefinitions.add(columnDefinition);
         }
