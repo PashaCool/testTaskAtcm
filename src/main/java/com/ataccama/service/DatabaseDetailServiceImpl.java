@@ -27,8 +27,8 @@ public class DatabaseDetailServiceImpl implements DatabaseDetailService {
     }
 
     @Override
-    public String createNewDbConnection(DatabaseDetailDto dto) {
-        Optional<DatabaseDetail> byDatabaseName = dbDetailRepository.findByDatabaseName(dto.getName());
+    public String createDbConnection(DatabaseDetailDto dto) {
+        Optional<DatabaseDetail> byDatabaseName = dbDetailRepository.findByName(dto.getName());
         if (byDatabaseName.isEmpty()) {
             DatabaseDetail entity = databaseDetailMapper.map(dto);
             DatabaseDetail saved = dbDetailRepository.save(entity);

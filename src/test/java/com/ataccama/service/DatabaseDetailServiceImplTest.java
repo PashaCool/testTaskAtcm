@@ -1,5 +1,6 @@
 package com.ataccama.service;
 
+import com.ataccama.controller.DatabaseDetailController;
 import com.ataccama.model.DatabaseDetail;
 import com.ataccama.model.DatabaseDetailDto;
 import com.ataccama.repository.DatabaseDetailRepository;
@@ -13,6 +14,7 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfigurati
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -35,6 +37,8 @@ class DatabaseDetailServiceImplTest {
     private DatabaseDetailRepository detailRepository;
     @Autowired
     private DatabaseDetailMapper mapper;
+    @Autowired
+    private DatabaseDetailController detailController;
 
     private List<DatabaseDetail> detailDtoList;
 
@@ -89,21 +93,19 @@ class DatabaseDetailServiceImplTest {
     @Test
     @DisplayName("test endpoint POST /api/create")
     void testCreateConnection() throws Exception {
-        String thirdDatabaseName = "thirdDatabaseName";
+        String thirdDatabaseName = "train_station";
         DatabaseDetailDto newConnection = DatabaseDetailDto.builder()
-                                                           .name("3")
+                                                           .name(thirdDatabaseName)
                                                            .hostName("thirdHostName")
                                                            .port(3333)
-                                                           .databaseName(thirdDatabaseName)
+                                                           .databaseName("thirdDatabaseName")
                                                            .userName("thirdUserName")
                                                            .password("thirdPassword")
                                                            .build();
 
-        DatabaseDetailDto response = this.restTemplate.postForObject(HTTP_LOCALHOST + port + "/api/connection/create", newConnection, DatabaseDetailDto.class);
+        detailController.createConnection(newConnection);
 
-        assertThat(response).isNotNull();
-
-        DatabaseDetail foundDto = detailRepository.findByDatabaseName(thirdDatabaseName)
+        DatabaseDetail foundDto = detailRepository.findByName(thirdDatabaseName)
                                                   .orElseThrow(() -> new Exception("Created entity not found"));
         compareEntityAndDto(foundDto, newConnection);
     }
@@ -111,8 +113,8 @@ class DatabaseDetailServiceImplTest {
     @Test
     @DisplayName("test endpoint PUT /api/connection/update")
     void testUpdateConnection() throws Exception {
-        String firstDBName = "firstDBName";
-        DatabaseDetail firstEntityVersion = detailRepository.findByDatabaseName(firstDBName)
+        String firstDBName = "firstName";
+        DatabaseDetail firstEntityVersion = detailRepository.findByName(firstDBName)
                                                             .orElseThrow(() -> new Exception("Created entity not found"));
 
         DatabaseDetailDto postedVersion = DatabaseDetailDto.builder()
@@ -139,7 +141,7 @@ class DatabaseDetailServiceImplTest {
         Iterable<DatabaseDetail> start = detailRepository.findAll();
         long beforeDelete = iterableSize(start);
 
-        DatabaseDetail secondDBName = detailRepository.findByDatabaseName("secondDBName")
+        DatabaseDetail secondDBName = detailRepository.findByName("secondName")
                                                       .orElseThrow();
 
         this.restTemplate.delete(HTTP_LOCALHOST + port + "/api/connection/" + secondDBName.getUuid(), Map.of("uuid", secondDBName.getUuid()));

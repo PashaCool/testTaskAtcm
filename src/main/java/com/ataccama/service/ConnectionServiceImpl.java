@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
 
 @RequiredArgsConstructor
 @Service
@@ -19,13 +18,13 @@ public class ConnectionServiceImpl implements ConnectionService {
     @Override
     public DataSource establishConnection(DatabaseDetailDto connectionDto) {
         String databaseUrl = accumulateUrl(connectionDto);
-        DataSource connection = establishConnection(databaseUrl, connectionDto.getUserName(), connectionDto.getPassword());
-        //            createConnection(connection, connectionDto); //todo for test purpose
-        return connection;
+        DataSource dataSource = establishConnection(databaseUrl, connectionDto.getUserName(), connectionDto.getPassword());
+        createConnection(dataSource, connectionDto);
+        return dataSource;
     }
 
-    private void createConnection(Connection connection, DatabaseDetailDto connectionDto) {
-        if (connection != null) {
+    private void createConnection(DataSource dataSource, DatabaseDetailDto connectionDto) {
+        if (dataSource != null) {
             DatabaseDetailDto databaseDetailDto = DatabaseDetailDto.builder()
                                                                    .name(connectionDto.getName())
                                                                    .hostName(connectionDto.getHostName())
@@ -34,7 +33,7 @@ public class ConnectionServiceImpl implements ConnectionService {
                                                                    .userName(connectionDto.getUserName())
                                                                    .password(connectionDto.getPassword())
                                                                    .build();
-            databaseDetailService.createNewDbConnection(databaseDetailDto);
+            databaseDetailService.createDbConnection(databaseDetailDto);
         }
     }
 

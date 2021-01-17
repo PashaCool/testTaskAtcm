@@ -53,4 +53,11 @@
         </sql>
     </changeSet>
 
+    <changeSet author="pshcharbakov" id="20210117-01">
+        <comment>make host_name and db_port and database_name unique</comment>
+        <sql>
+            ALTER TABLE public.databasedetails DROP CONSTRAINT unique_db_address;
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>

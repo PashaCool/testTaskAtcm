@@ -9,6 +9,6 @@ import java.util.Optional;
 @Repository
 public interface DatabaseDetailRepository extends CrudRepository<DatabaseDetail, String> {
 
-    Optional<DatabaseDetail> findByDatabaseName(String databaseName);
+    Optional<DatabaseDetail> findByName(String innerDbName);
 
 }

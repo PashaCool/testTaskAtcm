@@ -34,7 +34,7 @@ public class DatabaseDetailController {
 
     @PostMapping(path = "/create", consumes = "application/json")
     public ResponseEntity<String> createConnection(@RequestBody DatabaseDetailDto databaseDetailDto) {
-        String uuid = dbDetailService.createNewDbConnection(databaseDetailDto);
+        String uuid = dbDetailService.createDbConnection(databaseDetailDto);
         if (!uuid.isEmpty()) {
             return ResponseEntity.status(HttpStatus.CREATED).body(uuid);
         }

@@ -9,7 +9,7 @@ public interface DatabaseDetailService {
 
     List<DatabaseDetailDto> findAllDatabases();
 
-    String createNewDbConnection(DatabaseDetailDto entity);
+    String createDbConnection(DatabaseDetailDto entity);
 
     void deleteDbConnection(String uuid);
 
