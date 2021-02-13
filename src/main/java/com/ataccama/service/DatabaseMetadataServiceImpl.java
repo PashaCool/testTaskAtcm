@@ -44,7 +44,7 @@ public class DatabaseMetadataServiceImpl implements DatabaseMetadataService {
         }
     }
 
-    @Override
+    @Override//todo change to Page or Slice return type
     public List<Map<String, Object>> executeQuery(QueryRequest request) {
         var connection = connectionService.establishConnection(request.getConnectionDefinition());
         List<Map<String, Object>> result = new ArrayList<>();
@@ -78,8 +78,7 @@ public class DatabaseMetadataServiceImpl implements DatabaseMetadataService {
         var columnDefinitions = new ArrayList<ColumnDefinition>();
         while (columns.next()) {
             var columnDefinition = new ColumnDefinition(columns.getString(COLUMN_NAME), columns.getString(DATA_TYPE), columns.getBoolean(IS_NULLABLE),
-                                                        columns.getBoolean(IS_AUTOINCREMENT));
-            columnDefinition.setColumnSize(columns.getString(COLUMN_SIZE));
+                                                        columns.getBoolean(IS_AUTOINCREMENT), columns.getString(COLUMN_SIZE));
             columnDefinitions.add(columnDefinition);
         }
         return columnDefinitions;
